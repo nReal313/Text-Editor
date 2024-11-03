@@ -1,11 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/gdamore/tcell/v2"
 )
+
+var cur int = 0
+var box []string
 
 func main() {
 	//Initialize screen and handle errors
@@ -29,9 +31,12 @@ func main() {
 		case *tcell.EventKey:
 			if ev.Key() == tcell.KeyEsc {
 				return
+			} else if ev.Key() == tcell.KeyDelete || ev.Key() == tcell.KeyBackspace || ev.Key() == tcell.KeyBackspace2 {
+				deleteStr()
+			} else {
+				storeStr(string(ev.Rune()))
 			}
-			putStr(screen, 0, 1, fmt.Sprintf("You pressed : %v", ev.Rune()))
-			screen.Show()
+			showStr(screen)
 		}
 	}
 }
@@ -44,10 +49,27 @@ func putStr(s tcell.Screen, x, y int, str string) {
 	}
 }
 
-// logic to store the typed letters
+//logic to store the typed letters
 
-//logic to delete the typed letters
+func storeStr(str string) {
+	box = append(box, str)
+}
+
+// logic to delete the typed letters
+func deleteStr() {
+	box = box[:len(box)-1]
+}
 
 //logic to navigate to a particular letter and delete or append
 
-//logic to
+// logic to show the typed letters
+func showStr(s tcell.Screen) {
+	s.Clear()
+	putStr(s, 0, 1, "Press ESC to exit, Backspace to delete.")
+	var line string
+	for _, r := range box {
+		line += r
+	}
+	putStr(s, 0, 2, line)
+	s.Show()
+}
